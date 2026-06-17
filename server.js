@@ -33,6 +33,17 @@ app.get('/tareas', async (req, res) => {
   }
 });
 
+// DELETE: Eliminar un elemento multimedia por su ID
+app.delete('/api/multimedia/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Multimedia.findByIdAndDelete(id);
+    res.json({ mensaje: "¡Elemento eliminado correctamente de MongoDB!" });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al intentar eliminar el elemento", error });
+  }
+});
+
 // POST: Crear una nueva tarea
 app.post('/tareas', async (req, res) => {
   try {
