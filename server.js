@@ -9,12 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Conexión a MongoDB Atlas
+// Conexión a MongoDB Atlas usando tu variable de entorno
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("🚀 Conectado exitosamente a MongoDB Atlas (CRUD Tareas)"))
   .catch(err => console.error("❌ Error de conexión:", err));
 
-// Modelo de Datos
+// Modelo de Datos (Esquema de la Tarea)
 const TareaSchema = new mongoose.Schema({
   titulo: { type: String, required: true },
   prioridad: { type: String, required: true }
@@ -24,7 +24,7 @@ const Tarea = mongoose.model('Tarea', TareaSchema);
 
 // === RUTAS DEL API (CRUD) ===
 
-// 1. READ (Leer todas las tareas)
+// 1. READ: Obtener todas las tareas
 app.get('/tareas', async (req, res) => {
   try {
     const listaTareas = await Tarea.find();
@@ -34,7 +34,7 @@ app.get('/tareas', async (req, res) => {
   }
 });
 
-// 2. CREATE (Crear una nueva tarea)
+// 2. CREATE: Guardar una nueva tarea
 app.post('/tareas', async (req, res) => {
   try {
     const nuevaTarea = new Tarea(req.body);
@@ -45,7 +45,7 @@ app.post('/tareas', async (req, res) => {
   }
 });
 
-// 3. UPDATE (Actualizar una tarea existente por su ID)
+// 3. UPDATE: Actualizar una tarea existente por su ID
 app.put('/tareas/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -56,7 +56,7 @@ app.put('/tareas/:id', async (req, res) => {
   }
 });
 
-// 4. DELETE (Eliminar una tarea por su ID)
+// 4. DELETE: Eliminar una tarea por su ID
 app.delete('/tareas/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -67,6 +67,6 @@ app.delete('/tareas/:id', async (req, res) => {
   }
 });
 
-// Puerto de Render
+// Puerto asignado por Render o local
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🔥 Servidor CRUD corriendo en el puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🔥 Servidor CRUD activo en el puerto ${PORT}`));
