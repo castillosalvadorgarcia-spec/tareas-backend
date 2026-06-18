@@ -5,55 +5,68 @@ require('dotenv').config();
 
 const app = express();
 
+// Middlewares
 app.use(express.json());
 app.use(cors());
 
 // Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("🚀 Conectado a MongoDB Atlas para Tareas"))
-  .catch(err => console.error("❌ Error:", err));
+  .then(() => console.log("🚀 Conectado exitosamente a MongoDB Atlas (CRUD Tareas)"))
+  .catch(err => console.error("❌ Error de conexión:", err));
 
-// NUEVO ESQUEMA: Estructura para una tarea
+// Modelo de Datos
 const TareaSchema = new mongoose.Schema({
-  titulo: String,
-  prioridad: String, // Ejemplo: Alta, Media, Baja
-  completada: { type: Boolean, default: false }
+  titulo: { type: String, required: true },
+  prioridad: { type: String, required: true }
 });
 
 const Tarea = mongoose.model('Tarea', TareaSchema);
 
-// RUTAS
-// GET: Traer todas las tareas
+// === RUTAS DEL API (CRUD) ===
+
+// 1. READ (Leer todas las tareas)
 app.get('/tareas', async (req, res) => {
   try {
     const listaTareas = await Tarea.find();
     res.json(listaTareas);
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener tareas" });
+    res.status(500).json({ mensaje: "Error al obtener las tareas", error });
   }
 });
 
-// DELETE: Eliminar un elemento multimedia por su ID
-app.delete('/api/multimedia/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    await Multimedia.findByIdAndDelete(id);
-    res.json({ mensaje: "¡Elemento eliminado correctamente de MongoDB!" });
-  } catch (error) {
-    res.status(500).json({ mensaje: "Error al intentar eliminar el elemento", error });
-  }
-});
-
-// POST: Crear una nueva tarea
+// 2. CREATE (Crear una nueva tarea)
 app.post('/tareas', async (req, res) => {
   try {
     const nuevaTarea = new Tarea(req.body);
     await nuevaTarea.save();
-    res.json({ mensaje: "¡Tarea guardada!", nuevaTarea });
+    res.json({ mensaje: "¡Tarea guardada exitosamente!", nuevaTarea });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al guardar tarea" });
+    res.status(500).json({ mensaje: "Error al guardar la tarea", error });
   }
 });
 
+// 3. UPDATE (Actualizar una tarea existente por su ID)
+app.put('/tareas/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const tareaActualizada = await Tarea.findByIdAndUpdate(id, req.body, { new: true });
+    res.json({ mensaje: "¡Tarea actualizada exitosamente!", tareaActualizada });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al actualizar la tarea", error });
+  }
+});
+
+// 4. DELETE (Eliminar una tarea por su ID)
+app.delete('/tareas/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Tarea.findByIdAndDelete(id);
+    res.json({ mensaje: "¡Tarea eliminada correctamente!" });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al intentar eliminar la tarea", error });
+  }
+});
+
+// Puerto de Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🔥 Servidor CRUD corriendo en el puerto ${PORT}`));
